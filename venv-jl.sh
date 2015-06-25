@@ -49,6 +49,7 @@ function jlworkon() {
         echo "Not a virtual environment: '$env'"
         return 1
     fi
+    export __VENV_JL_OLD_PKGDIR=$JULIA_PKGDIR
     export JULIA_PKGDIR="$JLENV_HOME/${env}.env"
     export JULIA_VENV=$env
     export __VENV_JL_OLD_PS1=$PS1
@@ -57,7 +58,8 @@ function jlworkon() {
 
 function jldeactivate() {
     unset JULIA_VENV
-    unset JULIA_PKGDIR
+    export JULIA_PKGDIR="$__VENV_JL_OLD_PKGDIR"
+    unset __VENV_JL_OLD_PKGDIR
     export PS1="$__VENV_JL_OLD_PS1"
     unset __VENV_JL_OLD_PS1
 }
