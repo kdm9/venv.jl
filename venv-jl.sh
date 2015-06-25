@@ -25,9 +25,8 @@ function mkjlenv() {
 
     echo "Creating Julia virtual environment '$env'"
     mkdir "$JLENV_HOME/${env}.env"
-    export JULIA_PKGDIR="$JLENV_HOME/${env}.env"
-    export JULIA_VENV=$env
-    julia -e 'Pkg.init()'
+    JULIA_PKGDIR="$JLENV_HOME/${env}.env" julia -e 'Pkg.init()'
+    jlworkon $env
 }
 
 function rmjlenv() {
@@ -52,9 +51,13 @@ function jlworkon() {
     fi
     export JULIA_PKGDIR="$JLENV_HOME/${env}.env"
     export JULIA_VENV=$env
+    export __VENV_JL_OLD_PS1=$PS1
+    export PS1="($JULIA_VENV)$PS1"
 }
 
 function jldeactivate() {
     unset JULIA_VENV
     unset JULIA_PKGDIR
+    export PS1="$__VENV_JL_OLD_PS1"
+    unset __VENV_JL_OLD_PS1
 }
