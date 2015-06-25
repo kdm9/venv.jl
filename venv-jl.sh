@@ -11,7 +11,7 @@ fi
 function lsjlenv() {
     for env in $(find $JLENV_HOME -name \*.env -type d | sort)
     do
-        basename $env | sed 's/\.env$//'
+        basename ${env} .env
     done
 }
 
