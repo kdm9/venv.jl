@@ -22,6 +22,11 @@ function mkjlenv() {
         echo "Virtual environment already exists: '$env'"
         return 1
     fi
+    if [ -z "$env" ]
+    then
+        echo "USAGE: mkjlenv <virtualenv_name>"
+        return 1
+    fi
 
     echo "Creating Julia virtual environment '$env'"
     mkdir "$JLENV_HOME/${env}.env"
