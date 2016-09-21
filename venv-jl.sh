@@ -8,34 +8,39 @@ then
     mkdir $JLENV_HOME
 fi
 
-function lsjlenv() {
-    for env in $(find $JLENV_HOME -name \*.env -type d | sort)
+function jllsenv() {
+    for env in $( (cd $JLENV_HOME && echo *.env/) | tr ' ' '\n' | sort)
     do
         basename ${env} .env
     done
 }
 
-function mkjlenv() {
-    env=$1
+function jlmkenv() {
+    env="$1"
+    if [ -z "$env" ]
+    then
+        echo "USAGE: jlmkenv <virtualenv_name>"
+        return 1
+    fi
     if [ -d "$JLENV_HOME/${env}.env" ]
     then
         echo "Virtual environment already exists: '$env'"
-        return 1
-    fi
-    if [ -z "$env" ]
-    then
-        echo "USAGE: mkjlenv <virtualenv_name>"
         return 1
     fi
 
     echo "Creating Julia virtual environment '$env'"
     mkdir "$JLENV_HOME/${env}.env"
     JULIA_PKGDIR="$JLENV_HOME/${env}.env" julia -e 'Pkg.init()'
-    jlworkon $env
+    jlworkon "$env"
 }
 
-function rmjlenv() {
-    env=$1
+function jlrmenv() {
+    env="$1"
+    if [ -z "$env" ]
+    then
+        echo "USAGE: jlrmenv <virtualenv_name>"
+        return 1
+    fi
     if [ ! -d "$JLENV_HOME/${env}.env" ]
     then
         echo "Not a virtual environment: '$env'"
@@ -48,7 +53,12 @@ function rmjlenv() {
 
 
 function jlworkon() {
-    env=$1
+    env="$1"
+    if [ -z "$env" ]
+    then
+        jllsenv
+        return 0
+    fi
     if [ ! -d "$JLENV_HOME/${env}.env" ]
     then
         echo "Not a virtual environment: '$env'"
@@ -68,3 +78,12 @@ function jldeactivate() {
     export PS1="$__VENV_JL_OLD_PS1"
     unset __VENV_JL_OLD_PS1
 }
+
+function __venvjl_completion() {
+    _virtualenvs () {
+        reply=( $(jllsenv) )
+    }
+    compctl -K _virtualenvs jlworkon jlrmenv
+}
+
+__venvjl_completion
