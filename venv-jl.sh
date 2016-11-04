@@ -80,10 +80,19 @@ function jldeactivate() {
 }
 
 function __venvjl_completion() {
-    _virtualenvs () {
-        reply=( $(jllsenv) )
-    }
-    compctl -K _virtualenvs jlworkon jlrmenv
+    if [ -n "$BASH" ] ; then
+        _jlvirtualenvs () {
+            local cur="${COMP_WORDS[COMP_CWORD]}"
+            COMPREPLY=( $(compgen -W "`jllsenv`" -- ${cur}) )
+        }
+        complete -o default -o nospace -F _jlvirtualenvs jlworkon
+        complete -o default -o nospace -F _jlvirtualenvs jlrmenv
+    elif [ -n "$ZSH_VERSION" ] ; then
+        _virtualenvs () {
+            reply=( $(jllsenv) )
+        }
+        compctl -K _virtualenvs jlworkon jlrmenv
+    fi
 }
 
 __venvjl_completion
